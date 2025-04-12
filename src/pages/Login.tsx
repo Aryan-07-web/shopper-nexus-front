@@ -36,7 +36,7 @@ const Login = ({ defaultTab = "login" }: LoginProps) => {
   const [registerPassword, setRegisterPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
-  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [activeTab, setActiveTab] = useState<"login" | "register">(defaultTab);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -70,7 +70,7 @@ const Login = ({ defaultTab = "login" }: LoginProps) => {
       
       <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
         <div className="w-full max-w-md px-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "register")}>
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="login">Log In</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
