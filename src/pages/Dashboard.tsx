@@ -1,0 +1,418 @@
+
+import { useState } from "react";
+import { 
+  Users,
+  ShoppingBag,
+  MessageSquare,
+  Package,
+  ChevronDown,
+  BarChart3,
+  Settings,
+  LogOut,
+  User,
+  Search
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { products, orders, users } from "@/lib/data";
+
+// Dashboard Stats for Admin View
+const StatsCards = () => {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{users.filter(u => u.role === "customer").length}</div>
+          <p className="text-xs text-muted-foreground">
+            +10% from last month
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+          <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{orders.length}</div>
+          <p className="text-xs text-muted-foreground">
+            +20% from last month
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Pending Shipments</CardTitle>
+          <Package className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {orders.filter(order => order.status === "pending").length}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            -5% from last month
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Complaints</CardTitle>
+          <MessageSquare className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">3</div>
+          <p className="text-xs text-muted-foreground">
+            +2 new since yesterday
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Recent Orders Table
+const RecentOrdersTable = () => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent Orders</CardTitle>
+        <CardDescription>
+          Overview of the latest customer orders
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Order ID</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => {
+              const customer = users.find(user => user.id === order.userId);
+              return (
+                <TableRow key={order.id}>
+                  <TableCell className="font-medium">{order.id}</TableCell>
+                  <TableCell>{customer?.name || "Unknown"}</TableCell>
+                  <TableCell>{order.orderDate}</TableCell>
+                  <TableCell>
+                    <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                      order.status === "delivered"
+                        ? "bg-green-100 text-green-800"
+                        : order.status === "shipped"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}>
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </div>
+                  </TableCell>
+                  <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>View Details</DropdownMenuItem>
+                        <DropdownMenuItem>Update Status</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-600">
+                          Cancel Order
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Inventory Table
+const InventoryTable = () => {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Inventory Status</CardTitle>
+          <CardDescription>
+            Current stock levels for all products
+          </CardDescription>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Input
+            placeholder="Search products..."
+            className="max-w-[180px]"
+          />
+          <Button>Export</Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Product</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {products.slice(0, 5).map((product) => (
+              <TableRow key={product.id}>
+                <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell>{product.category}</TableCell>
+                <TableCell>₹{product.price.toFixed(2)}</TableCell>
+                <TableCell>{product.stock}</TableCell>
+                <TableCell>
+                  <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    product.stock > 20
+                      ? "bg-green-100 text-green-800"
+                      : product.stock > 0
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                  }`}>
+                    {product.stock > 20
+                      ? "In Stock"
+                      : product.stock > 0
+                      ? "Low Stock"
+                      : "Out of Stock"}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm">
+                    Edit
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Main Dashboard Component
+const Dashboard = () => {
+  const [role, setRole] = useState<string>("admin");
+  
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="hidden md:flex w-64 flex-col bg-white border-r">
+        <div className="p-6 border-b">
+          <h1 className="text-2xl font-bold text-primary">ShopperNexus</h1>
+          <p className="text-sm text-gray-600">Admin Dashboard</p>
+        </div>
+        
+        <div className="flex flex-col flex-grow p-4">
+          <div className="space-y-1">
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link to="/dashboard">
+                <BarChart3 className="h-5 w-5 mr-2" />
+                Dashboard
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link to="/dashboard/orders">
+                <ShoppingBag className="h-5 w-5 mr-2" />
+                Orders
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link to="/dashboard/products">
+                <Package className="h-5 w-5 mr-2" />
+                Products
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link to="/dashboard/customers">
+                <Users className="h-5 w-5 mr-2" />
+                Customers
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link to="/dashboard/complaints">
+                <MessageSquare className="h-5 w-5 mr-2" />
+                Complaints
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" asChild>
+              <Link to="/dashboard/settings">
+                <Settings className="h-5 w-5 mr-2" />
+                Settings
+              </Link>
+            </Button>
+          </div>
+        </div>
+        
+        <div className="border-t p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                A
+              </div>
+              <div className="ml-2">
+                <p className="text-sm font-medium">Admin User</p>
+                <p className="text-xs text-gray-500">admin@example.com</p>
+              </div>
+            </div>
+            <Button variant="ghost" size="icon">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <header className="bg-white border-b px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center md:hidden">
+              <Button variant="outline" size="icon" className="mr-2">
+                <Menu className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-bold text-primary">Dashboard</h1>
+            </div>
+            
+            <div className="hidden md:block">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  placeholder="Search..."
+                  className="w-[300px] pl-9"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm">
+                <User className="h-4 w-4 mr-1" />
+                Switch Role
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                      A
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Link to="/" className="flex w-full">Back to Store</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </header>
+        
+        {/* Main Dashboard Content */}
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2">Welcome back, Admin!</h1>
+              <p className="text-gray-600">
+                Here's what's happening in your store today.
+              </p>
+            </div>
+            
+            <div className="space-y-8">
+              <StatsCards />
+              
+              <Tabs defaultValue="orders">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="orders">Recent Orders</TabsTrigger>
+                  <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                </TabsList>
+                <TabsContent value="orders">
+                  <RecentOrdersTable />
+                </TabsContent>
+                <TabsContent value="inventory">
+                  <InventoryTable />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+// Menu icon for mobile display
+const Menu = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <line x1="4" x2="20" y1="12" y2="12" />
+    <line x1="4" x2="20" y1="6" y2="6" />
+    <line x1="4" x2="20" y1="18" y2="18" />
+  </svg>
+);
