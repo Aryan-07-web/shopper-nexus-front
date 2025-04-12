@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
@@ -13,6 +14,9 @@ const SearchBar = () => {
     e.preventDefault();
     if (query.trim()) {
       navigate(`/products?search=${encodeURIComponent(query.trim())}`);
+      toast.success(`Searching for "${query}"`);
+    } else {
+      toast.error("Please enter a search term");
     }
   };
   
@@ -32,7 +36,13 @@ const SearchBar = () => {
         <Button type="submit" className="h-12">
           Search
         </Button>
-        <Button type="button" variant="outline" className="h-12" aria-label="Advanced filters">
+        <Button 
+          type="button" 
+          variant="outline" 
+          className="h-12" 
+          aria-label="Advanced filters"
+          onClick={() => toast.info("Advanced filters coming soon")}
+        >
           <SlidersHorizontal className="h-5 w-5" />
         </Button>
       </form>

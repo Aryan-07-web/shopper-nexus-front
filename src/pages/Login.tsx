@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -22,9 +22,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
-const Login = () => {
+interface LoginProps {
+  defaultTab?: "login" | "register";
+}
+
+const Login = ({ defaultTab = "login" }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("customer");
@@ -32,31 +36,32 @@ const Login = () => {
   const [registerPassword, setRegisterPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Update active tab if defaultTab prop changes
+    setActiveTab(defaultTab);
+  }, [defaultTab]);
   
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, this would authenticate via API
-    toast({
-      title: "Login Attempted",
-      description: `Logging in as ${email} with role: ${role}`,
-    });
+    toast.success(`Logging in as ${email} with role: ${role}`);
+    localStorage.setItem("isLoggedIn", "true");
+    navigate("/");
   };
   
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (registerPassword !== confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: "Passwords don't match",
-        description: "Please check your password and try again.",
-      });
+      toast.error("Passwords don't match. Please check your password and try again.");
       return;
     }
     // In a real app, this would register via API
-    toast({
-      title: "Registration Successful",
-      description: `Account created for ${registerEmail}`,
-    });
+    toast.success(`Account created for ${registerEmail}`);
+    localStorage.setItem("isLoggedIn", "true");
+    navigate("/");
   };
   
   return (
@@ -65,7 +70,7 @@ const Login = () => {
       
       <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
         <div className="w-full max-w-md px-4">
-          <Tabs defaultValue="login">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="login">Log In</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
