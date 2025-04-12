@@ -8,11 +8,11 @@ import { toast } from "sonner";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   
   const handleProfileClick = () => {
-    // Check if user is logged in - this is just a placeholder
-    // In a real app, you would check from your auth context/store
+    // Check if user is logged in
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     
     if (isLoggedIn) {
@@ -27,6 +27,20 @@ const Navbar = () => {
     }
   };
   
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+      toast.success(`Searching for "${searchQuery}"`);
+    } else {
+      toast.error("Please enter a search term");
+    }
+  };
+
+  // Check if user is logged in for cart items
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const cartItemCount = isLoggedIn ? 3 : 0;
+  
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-b sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -38,10 +52,15 @@ const Navbar = () => {
           
           {/* Search Bar - Hidden on mobile */}
           <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-            <div className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search for products..." className="pl-9 w-full" />
-            </div>
+              <Input 
+                placeholder="Search for products..." 
+                className="pl-9 w-full" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
           </div>
           
           {/* Navigation - Desktop */}
@@ -55,12 +74,14 @@ const Navbar = () => {
             <Link to="/register" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
               Register
             </Link>
-            <Link to="/cart">
+            <Link to={isLoggedIn ? "/cart" : "/login"}>
               <Button variant="outline" size="icon" className="relative bg-white/10 hover:bg-white/20 border-white/20">
                 <ShoppingCart className="h-5 w-5 text-white" />
-                <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                  3
-                </span>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Button 
@@ -75,12 +96,14 @@ const Navbar = () => {
           
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
-            <Link to="/cart">
+            <Link to={isLoggedIn ? "/cart" : "/login"}>
               <Button variant="outline" size="icon" className="relative bg-white/10 hover:bg-white/20 border-white/20">
                 <ShoppingCart className="h-5 w-5 text-white" />
-                <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                  3
-                </span>
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
               </Button>
             </Link>
             <Button 
@@ -97,10 +120,15 @@ const Navbar = () => {
         
         {/* Mobile Search - Visible only on mobile */}
         <div className="mt-4 md:hidden">
-          <div className="relative w-full">
+          <form onSubmit={handleSearch} className="relative w-full">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search for products..." className="pl-9 w-full bg-white/10 border-white/20 text-white placeholder:text-white/70" />
-          </div>
+            <Input 
+              placeholder="Search for products..." 
+              className="pl-9 w-full bg-white/10 border-white/20 text-white placeholder:text-white/70" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
         </div>
         
         {/* Mobile Menu */}
