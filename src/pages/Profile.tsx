@@ -21,6 +21,16 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { formatPrice } from "@/lib/data";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { orders } from "@/lib/data";
 
 interface UserData {
   name: string;
@@ -43,6 +53,9 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   
   const navigate = useNavigate();
+  
+  // Get user orders - in a real app, this would filter by the current user's ID
+  const userOrders = orders.slice(0, 3); // Just showing the first 3 orders as examples
   
   useEffect(() => {
     // Check if user is logged in
@@ -92,9 +105,9 @@ const Profile = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
-        <div className="w-full max-w-4xl px-4">
-          <h1 className="text-3xl font-bold mb-6 text-center">My Profile</h1>
+      <main className="flex-grow py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl font-bold mb-6">My Profile</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="md:col-span-1">
@@ -116,9 +129,10 @@ const Profile = () => {
             <Card className="md:col-span-3">
               <Tabs defaultValue="details">
                 <CardHeader>
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="details">Profile Details</TabsTrigger>
                     <TabsTrigger value="security">Security</TabsTrigger>
+                    <TabsTrigger value="orders">My Orders</TabsTrigger>
                   </TabsList>
                 </CardHeader>
                 
@@ -227,6 +241,50 @@ const Profile = () => {
                         <Button type="submit">Change Password</Button>
                       </div>
                     </form>
+                  </TabsContent>
+                  
+                  <TabsContent value="orders">
+                    {userOrders.length > 0 ? (
+                      <div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Order ID</TableHead>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Total</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {userOrders.map((order) => (
+                              <TableRow key={order.id}>
+                                <TableCell className="font-medium">{order.id}</TableCell>
+                                <TableCell>{order.orderDate}</TableCell>
+                                <TableCell>
+                                  <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                    order.status === "delivered"
+                                      ? "bg-green-100 text-green-800"
+                                      : order.status === "shipped"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}>
+                                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                  </div>
+                                </TableCell>
+                                <TableCell>{formatPrice(order.totalAmount)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-12">
+                        <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
+                        <Button asChild>
+                          <Link to="/products">Start Shopping</Link>
+                        </Button>
+                      </div>
+                    )}
                   </TabsContent>
                 </CardContent>
               </Tabs>

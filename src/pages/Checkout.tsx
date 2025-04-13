@@ -73,7 +73,7 @@ const Checkout = () => {
                   <Link to="/products">Continue Shopping</Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full">
-                  <Link to="/dashboard/orders">View My Orders</Link>
+                  <Link to="/profile">View Profile</Link>
                 </Button>
               </div>
             </div>
