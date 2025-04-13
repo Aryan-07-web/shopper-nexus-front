@@ -5,6 +5,8 @@ import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { logout } from "@/services/auth.service";
+import { getCartItems } from "@/services/cart.service";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,13 +14,27 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [cartItemCount, setCartItemCount] = useState(0);
   
   useEffect(() => {
     // Check authentication state
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const role = localStorage.getItem("userRole");
-    setIsLoggedIn(loggedIn);
-    setUserRole(role);
+    const checkAuth = async () => {
+      const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+      const role = localStorage.getItem("userRole");
+      setIsLoggedIn(loggedIn);
+      setUserRole(role);
+      
+      // If logged in as customer, get cart count
+      if (loggedIn && role === "customer") {
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          const items = await getCartItems(parseInt(userId));
+          setCartItemCount(items.length);
+        }
+      }
+    };
+    
+    checkAuth();
   }, []);
   
   const handleProfileClick = () => {
@@ -44,8 +60,7 @@ const Navbar = () => {
   };
   
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userRole");
+    logout();
     setIsLoggedIn(false);
     setUserRole(null);
     toast.success("Logged out successfully");
@@ -61,9 +76,6 @@ const Navbar = () => {
       toast.error("Please enter a search term");
     }
   };
-
-  // Set cart items count based on user state
-  const cartItemCount = isLoggedIn && userRole === "customer" ? 3 : 0;
   
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-b sticky top-0 z-50">
