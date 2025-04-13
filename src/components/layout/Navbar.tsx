@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,29 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Check authentication state
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const role = localStorage.getItem("userRole");
+    setIsLoggedIn(loggedIn);
+    setUserRole(role);
+  }, []);
   
   const handleProfileClick = () => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    
     if (isLoggedIn) {
-      navigate("/profile");
+      // Redirect based on role
+      if (userRole === "admin") {
+        navigate("/dashboard");
+      } else if (userRole === "employee") {
+        navigate("/employee-dashboard");
+      } else if (userRole === "vendor") {
+        navigate("/vendor-dashboard");
+      } else {
+        navigate("/profile");
+      }
     } else {
       toast.info("Please log in or register to view your profile", {
         action: {
@@ -25,6 +41,15 @@ const Navbar = () => {
         },
       });
     }
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    setIsLoggedIn(false);
+    setUserRole(null);
+    toast.success("Logged out successfully");
+    navigate("/");
   };
   
   const handleSearch = (e: React.FormEvent) => {
@@ -37,9 +62,8 @@ const Navbar = () => {
     }
   };
 
-  // Check if user is logged in for cart items
-  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const cartItemCount = isLoggedIn ? 3 : 0;
+  // Set cart items count based on user state
+  const cartItemCount = isLoggedIn && userRole === "customer" ? 3 : 0;
   
   return (
     <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-b sticky top-0 z-50">
@@ -68,22 +92,39 @@ const Navbar = () => {
             <Link to="/products" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
               Products
             </Link>
-            <Link to="/login" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
-              Log in
-            </Link>
-            <Link to="/register" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
-              Register
-            </Link>
-            <Link to={isLoggedIn ? "/cart" : "/login"}>
-              <Button variant="outline" size="icon" className="relative bg-white/10 hover:bg-white/20 border-white/20">
-                <ShoppingCart className="h-5 w-5 text-white" />
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                    {cartItemCount}
-                  </span>
-                )}
+            
+            {!isLoggedIn ? (
+              <>
+                <Link to="/login" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                  Log in
+                </Link>
+                <Link to="/register" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                  Register
+                </Link>
+              </>
+            ) : (
+              <Button 
+                variant="ghost"
+                className="px-3 py-2 text-sm hover:text-yellow-300 text-white hover:bg-transparent transition-colors"
+                onClick={handleLogout}
+              >
+                Logout
               </Button>
-            </Link>
+            )}
+            
+            {userRole === "customer" && (
+              <Link to="/cart">
+                <Button variant="outline" size="icon" className="relative bg-white/10 hover:bg-white/20 border-white/20">
+                  <ShoppingCart className="h-5 w-5 text-white" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            )}
+            
             <Button 
               variant="outline" 
               size="icon" 
@@ -96,16 +137,18 @@ const Navbar = () => {
           
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
-            <Link to={isLoggedIn ? "/cart" : "/login"}>
-              <Button variant="outline" size="icon" className="relative bg-white/10 hover:bg-white/20 border-white/20">
-                <ShoppingCart className="h-5 w-5 text-white" />
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                    {cartItemCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            {userRole === "customer" && (
+              <Link to="/cart">
+                <Button variant="outline" size="icon" className="relative bg-white/10 hover:bg-white/20 border-white/20">
+                  <ShoppingCart className="h-5 w-5 text-white" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-blue-800 rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            )}
             <Button 
               variant="ghost" 
               size="icon" 
@@ -138,19 +181,47 @@ const Navbar = () => {
               <Link to="/products" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
                 Products
               </Link>
-              <Link to="/login" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
-                Log in
-              </Link>
-              <Link to="/register" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
-                Register
-              </Link>
-              <Button 
-                variant="ghost"
-                className="justify-start px-3 py-2 text-sm text-white hover:text-yellow-300 hover:bg-transparent transition-colors"
-                onClick={handleProfileClick}
-              >
-                My Profile
-              </Button>
+              
+              {!isLoggedIn ? (
+                <>
+                  <Link to="/login" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                    Log in
+                  </Link>
+                  <Link to="/register" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                    Register
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {userRole === "admin" && (
+                    <Link to="/dashboard" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  {userRole === "employee" && (
+                    <Link to="/employee-dashboard" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                      Employee Dashboard
+                    </Link>
+                  )}
+                  {userRole === "vendor" && (
+                    <Link to="/vendor-dashboard" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                      Vendor Dashboard
+                    </Link>
+                  )}
+                  {userRole === "customer" && (
+                    <Link to="/profile" className="px-3 py-2 text-sm hover:text-yellow-300 transition-colors">
+                      My Profile
+                    </Link>
+                  )}
+                  <Button 
+                    variant="ghost"
+                    className="justify-start px-3 py-2 text-sm text-white hover:text-yellow-300 hover:bg-transparent transition-colors"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Button>
+                </>
+              )}
             </nav>
           </div>
         )}

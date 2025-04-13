@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
@@ -6,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+
+type UserRole = "customer" | "employee" | "vendor" | "admin";
 
 const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
   const [searchParams] = useSearchParams();
@@ -18,6 +22,7 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState<UserRole>("customer");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,20 +33,32 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     if (tab === "login") {
-      if (email === "test@example.com" && password === "password") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "customer");
-        toast.success("Logged in successfully!");
-        navigate("/");
-      } else if (email === "admin@example.com" && password === "admin") {
+      // Handle different role logins with mock credentials
+      if (email === "admin@example.com" && password === "admin") {
         localStorage.setItem("isLoggedIn", "true");
         localStorage.setItem("userRole", "admin");
         toast.success("Admin logged in successfully!");
         navigate("/dashboard");
+      } else if (email === "employee@example.com" && password === "employee") {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "employee");
+        toast.success("Employee logged in successfully!");
+        navigate("/employee-dashboard");
+      } else if (email === "vendor@example.com" && password === "vendor") {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "vendor");
+        toast.success("Vendor logged in successfully!");
+        navigate("/vendor-dashboard");
+      } else if (email === "test@example.com" && password === "password") {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", "customer");
+        toast.success("Customer logged in successfully!");
+        navigate("/");
       } else {
         toast.error("Invalid credentials");
       }
     } else {
+      // Registration - would connect to backend in real implementation
       toast.success("Registration successful! Please log in.");
       setTab("login");
     }
@@ -62,7 +79,7 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue={tab} className="space-y-4">
+              <Tabs defaultValue={tab} value={tab} className="space-y-4">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="login" onClick={() => setTab("login")}>Login</TabsTrigger>
                   <TabsTrigger value="register" onClick={() => setTab("register")}>Register</TabsTrigger>
@@ -90,6 +107,30 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">I am a</Label>
+                      <Select 
+                        value={role} 
+                        onValueChange={(value) => setRole(value as UserRole)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="customer">Customer</SelectItem>
+                          <SelectItem value="employee">Employee</SelectItem>
+                          <SelectItem value="vendor">Vendor</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Demo credentials:<br/>
+                        Admin: admin@example.com / admin<br/>
+                        Employee: employee@example.com / employee<br/>
+                        Vendor: vendor@example.com / vendor<br/>
+                        Customer: test@example.com / password
+                      </p>
                     </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? "Logging In..." : "Login"}
@@ -132,6 +173,21 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">I am a</Label>
+                      <Select 
+                        value={role} 
+                        onValueChange={(value) => setRole(value as UserRole)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="customer">Customer</SelectItem>
+                          <SelectItem value="vendor">Vendor</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
                       {isSubmitting ? "Registering..." : "Register"}
