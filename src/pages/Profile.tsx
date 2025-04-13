@@ -30,32 +30,81 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { orders } from "@/lib/data";
+import { Order } from "@/types/models";
 
 interface UserData {
-  name: string;
+  customer_id: number;
+  first_name: string;
+  last_name: string;
   email: string;
+  contact_no: string;
+  house_no?: string;
+  local_area?: string;
+  pin_code?: string;
+  city?: string;
   role: string;
 }
 
 const Profile = () => {
+  // Mock user data - this would come from the database in a real app
   const [userData, setUserData] = useState<UserData>({
-    name: "John Doe",
+    customer_id: 1,
+    first_name: "John",
+    last_name: "Doe",
     email: "john.doe@example.com",
+    contact_no: "1234567890",
+    house_no: "123",
+    local_area: "Main Street",
+    pin_code: "100001",
+    city: "New York",
     role: "customer"
   });
   
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(userData.name);
+  const [firstName, setFirstName] = useState(userData.first_name);
+  const [lastName, setLastName] = useState(userData.last_name);
   const [email, setEmail] = useState(userData.email);
+  const [contactNo, setContactNo] = useState(userData.contact_no);
+  const [houseNo, setHouseNo] = useState(userData.house_no || "");
+  const [localArea, setLocalArea] = useState(userData.local_area || "");
+  const [pinCode, setPinCode] = useState(userData.pin_code || "");
+  const [city, setCity] = useState(userData.city || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
   const navigate = useNavigate();
   
-  // Get user orders - in a real app, this would filter by the current user's ID
-  const userOrders = orders.slice(0, 3); // Just showing the first 3 orders as examples
+  // Mock orders - this would be fetched from the database in a real app
+  const [userOrders, setUserOrders] = useState<Order[]>([
+    {
+      order_id: 1,
+      tax: 25.00,
+      order_cost: 500.00,
+      discount_percentage: 10,
+      status: "Completed",
+      time: "2025-04-01T12:00:00",
+      final_amount: 475.00
+    },
+    {
+      order_id: 2,
+      tax: 15.00,
+      order_cost: 300.00,
+      discount_percentage: 5,
+      status: "Pending",
+      time: "2025-04-05T14:30:00",
+      final_amount: 300.00
+    },
+    {
+      order_id: 3,
+      tax: 10.00,
+      order_cost: 200.00,
+      discount_percentage: 0,
+      status: "Completed",
+      time: "2025-04-10T09:15:00",
+      final_amount: 210.00
+    }
+  ]);
   
   useEffect(() => {
     // Check if user is logged in
@@ -66,15 +115,21 @@ const Profile = () => {
       navigate("/login");
     }
     
-    // In a real app, we would fetch user data from API/backend here
+    // In a real app, we would fetch user data and orders from API/backend here
   }, [navigate]);
   
   const handleProfileUpdate = (e: React.FormEvent) => {
     e.preventDefault();
     setUserData({
       ...userData,
-      name,
-      email
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      contact_no: contactNo,
+      house_no: houseNo,
+      local_area: localArea,
+      pin_code: pinCode,
+      city: city
     });
     setIsEditing(false);
     toast.success("Profile updated successfully");
@@ -116,9 +171,9 @@ const Profile = () => {
               </CardHeader>
               <CardContent className="flex flex-col items-center">
                 <div className="w-32 h-32 bg-blue-600 rounded-full text-white flex items-center justify-center text-4xl mb-4">
-                  {userData.name.charAt(0).toUpperCase()}
+                  {userData.first_name.charAt(0).toUpperCase()}
                 </div>
-                <p className="font-semibold">{userData.name}</p>
+                <p className="font-semibold">{userData.first_name} {userData.last_name}</p>
                 <p className="text-sm text-gray-500">{userData.role}</p>
               </CardContent>
               <CardFooter>
@@ -140,14 +195,26 @@ const Profile = () => {
                   <TabsContent value="details">
                     {isEditing ? (
                       <form onSubmit={handleProfileUpdate} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Full Name</Label>
-                          <Input
-                            id="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                          />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="firstName">First Name</Label>
+                            <Input
+                              id="firstName"
+                              value={firstName}
+                              onChange={(e) => setFirstName(e.target.value)}
+                              required
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="lastName">Last Name</Label>
+                            <Input
+                              id="lastName"
+                              value={lastName}
+                              onChange={(e) => setLastName(e.target.value)}
+                              required
+                            />
+                          </div>
                         </div>
                         
                         <div className="space-y-2">
@@ -162,13 +229,53 @@ const Profile = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label htmlFor="role">Role</Label>
+                          <Label htmlFor="contactNo">Contact Number</Label>
                           <Input
-                            id="role"
-                            value={userData.role}
-                            disabled
-                            className="bg-gray-100"
+                            id="contactNo"
+                            value={contactNo}
+                            onChange={(e) => setContactNo(e.target.value)}
+                            required
                           />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="houseNo">House Number</Label>
+                            <Input
+                              id="houseNo"
+                              value={houseNo}
+                              onChange={(e) => setHouseNo(e.target.value)}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="localArea">Area/Street</Label>
+                            <Input
+                              id="localArea"
+                              value={localArea}
+                              onChange={(e) => setLocalArea(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="pinCode">PIN Code</Label>
+                            <Input
+                              id="pinCode"
+                              value={pinCode}
+                              onChange={(e) => setPinCode(e.target.value)}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="city">City</Label>
+                            <Input
+                              id="city"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
+                            />
+                          </div>
                         </div>
                         
                         <div className="flex justify-end space-x-2 pt-4">
@@ -179,10 +286,17 @@ const Profile = () => {
                         </div>
                       </form>
                     ) : (
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500">Full Name</h3>
-                          <p className="mt-1">{userData.name}</p>
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-500">First Name</h3>
+                            <p className="mt-1">{userData.first_name}</p>
+                          </div>
+                          
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-500">Last Name</h3>
+                            <p className="mt-1">{userData.last_name}</p>
+                          </div>
                         </div>
                         
                         <div>
@@ -191,8 +305,20 @@ const Profile = () => {
                         </div>
                         
                         <div>
-                          <h3 className="text-sm font-medium text-gray-500">Role</h3>
-                          <p className="mt-1 capitalize">{userData.role}</p>
+                          <h3 className="text-sm font-medium text-gray-500">Contact Number</h3>
+                          <p className="mt-1">{userData.contact_no}</p>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <h3 className="text-sm font-medium text-gray-500">Address</h3>
+                            <p className="mt-1">
+                              {userData.house_no && `${userData.house_no}, `}
+                              {userData.local_area && `${userData.local_area}, `}
+                              {userData.city && `${userData.city}, `}
+                              {userData.pin_code}
+                            </p>
+                          </div>
                         </div>
                         
                         <div className="pt-4">
@@ -252,26 +378,32 @@ const Profile = () => {
                               <TableHead>Order ID</TableHead>
                               <TableHead>Date</TableHead>
                               <TableHead>Status</TableHead>
-                              <TableHead>Total</TableHead>
+                              <TableHead>Order Cost</TableHead>
+                              <TableHead>Discount</TableHead>
+                              <TableHead>Tax</TableHead>
+                              <TableHead>Final Amount</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {userOrders.map((order) => (
-                              <TableRow key={order.id}>
-                                <TableCell className="font-medium">{order.id}</TableCell>
-                                <TableCell>{order.orderDate}</TableCell>
+                              <TableRow key={order.order_id}>
+                                <TableCell className="font-medium">{order.order_id}</TableCell>
+                                <TableCell>{new Date(order.time || "").toLocaleDateString()}</TableCell>
                                 <TableCell>
                                   <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                                    order.status === "delivered"
+                                    order.status === "Completed"
                                       ? "bg-green-100 text-green-800"
-                                      : order.status === "shipped"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : "bg-yellow-100 text-yellow-800"
+                                      : order.status === "Pending"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-red-100 text-red-800"
                                   }`}>
-                                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                    {order.status}
                                   </div>
                                 </TableCell>
-                                <TableCell>{formatPrice(order.totalAmount)}</TableCell>
+                                <TableCell>{formatPrice(order.order_cost)}</TableCell>
+                                <TableCell>{order.discount_percentage}%</TableCell>
+                                <TableCell>{formatPrice(order.tax)}</TableCell>
+                                <TableCell className="font-medium">{formatPrice(order.final_amount || 0)}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
