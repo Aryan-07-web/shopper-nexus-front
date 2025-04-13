@@ -2,8 +2,18 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Product } from "@/lib/data";
 import ProductCard from "./ProductCard";
+
+interface Product {
+  product_id: number;
+  price: number;
+  details?: string;
+  photos?: string;
+  category?: string;
+  ratings?: number;
+  discount_percentage?: number;
+  [key: string]: any; // For additional properties
+}
 
 interface ProductCarouselProps {
   title: string;
@@ -57,7 +67,7 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
       >
         {products.map((product) => (
           <div 
-            key={product.id} 
+            key={product.product_id} 
             className="min-w-[240px] md:min-w-[280px]"
           >
             <ProductCard product={product} />

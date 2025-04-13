@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Users,
   MessageSquare,
@@ -9,7 +9,7 @@ import {
   LogOut,
   User
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,10 +35,65 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users, orders } from "@/lib/data";
+import { getAllCustomers } from "@/services/customer.service";
+import { getEmployeeComplaints } from "@/services/employee.service";
+import { logout } from "@/services/auth.service";
+import { Customer } from "@/types/models";
+import { toast } from "sonner";
 
 // Employee Dashboard Component
 const EmployeeDashboard = () => {
+  const navigate = useNavigate();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [complaints, setComplaints] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    // Check if user is logged in as employee
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const userRole = localStorage.getItem("userRole");
+    
+    if (!isLoggedIn || userRole !== "employee") {
+      toast.error("You must be logged in as an employee to access this page.");
+      navigate("/login");
+      return;
+    }
+    
+    // Load data
+    const loadData = async () => {
+      try {
+        const customersData = await getAllCustomers();
+        setCustomers(customersData);
+        
+        const userId = localStorage.getItem("userId");
+        if (userId) {
+          const complaintsData = await getEmployeeComplaints(parseInt(userId));
+          setComplaints(complaintsData);
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        toast.error("Failed to load data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const filteredCustomers = customers.filter(
+    customer => 
+      customer.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -76,7 +131,7 @@ const EmployeeDashboard = () => {
                 <p className="text-xs text-gray-500">employee@example.com</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -101,6 +156,8 @@ const EmployeeDashboard = () => {
                 <Input
                   placeholder="Search customers..."
                   className="w-[300px] pl-9"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -123,7 +180,9 @@ const EmployeeDashboard = () => {
                   <DropdownMenuItem>
                     <Link to="/" className="flex w-full">Back to Store</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -140,122 +199,114 @@ const EmployeeDashboard = () => {
               </p>
             </div>
             
-            <div className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Customers</CardTitle>
-                  <CardDescription>
-                    List of all registered customers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {users.filter(u => u.role === "customer").map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">{user.id}</TableCell>
-                          <TableCell>{user.name}</TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>{user.city || "Not specified"}</TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <ChevronDown className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                <DropdownMenuItem>View Orders</DropdownMenuItem>
-                                <DropdownMenuItem>Contact Customer</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <p className="text-lg">Loading data...</p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Customers</CardTitle>
+                    <CardDescription>
+                      List of all registered customers
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>ID</TableHead>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>City</TableHead>
+                          <TableHead>Actions</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Customer Requests</CardTitle>
-                  <CardDescription>
-                    Customer support requests that need attention
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Request ID</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">REQ-001</TableCell>
-                        <TableCell>John Doe</TableCell>
-                        <TableCell>Return Request</TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
-                            Pending
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            Process
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">REQ-002</TableCell>
-                        <TableCell>Sarah Smith</TableCell>
-                        <TableCell>Order Change</TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
-                            Pending
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            Process
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">REQ-003</TableCell>
-                        <TableCell>Michael Brown</TableCell>
-                        <TableCell>Order Status</TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
-                            Resolved
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredCustomers.length > 0 ? (
+                          filteredCustomers.map((customer) => (
+                            <TableRow key={customer.customer_id}>
+                              <TableCell className="font-medium">{customer.customer_id}</TableCell>
+                              <TableCell>{`${customer.first_name} ${customer.last_name}`}</TableCell>
+                              <TableCell>{customer.email}</TableCell>
+                              <TableCell>{customer.city || "Not specified"}</TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <ChevronDown className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                                    <DropdownMenuItem>View Orders</DropdownMenuItem>
+                                    <DropdownMenuItem>Contact Customer</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center">
+                              {searchTerm.length > 0 ? "No customers match your search" : "No customers found"}
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Customer Requests</CardTitle>
+                    <CardDescription>
+                      Customer support requests that need attention
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Request ID</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {complaints.length > 0 ? (
+                          complaints.map((complaint) => (
+                            <TableRow key={complaint.Complaint_No}>
+                              <TableCell className="font-medium">{`REQ-${complaint.Complaint_No}`}</TableCell>
+                              <TableCell>{`${complaint.Customer?.First_Name || ""} ${complaint.Customer?.Last_Name || ""}`}</TableCell>
+                              <TableCell>{complaint.Orders ? "Order Issue" : "General Inquiry"}</TableCell>
+                              <TableCell>
+                                <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                  Pending
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button variant="ghost" size="sm">
+                                  Process
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="text-center">No customer requests found</TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </main>
       </div>

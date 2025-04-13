@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { login, register } from "@/services/auth.service";
 
 type UserRole = "customer" | "employee" | "vendor" | "admin";
 
@@ -22,6 +23,7 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<UserRole>("customer");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -29,41 +31,49 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    if (tab === "login") {
-      // Handle different role logins with mock credentials
-      if (email === "admin@example.com" && password === "admin") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "admin");
-        toast.success("Admin logged in successfully!");
-        navigate("/dashboard");
-      } else if (email === "employee@example.com" && password === "employee") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "employee");
-        toast.success("Employee logged in successfully!");
-        navigate("/employee-dashboard");
-      } else if (email === "vendor@example.com" && password === "vendor") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "vendor");
-        toast.success("Vendor logged in successfully!");
-        navigate("/vendor-dashboard");
-      } else if (email === "test@example.com" && password === "password") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "customer");
-        toast.success("Customer logged in successfully!");
-        navigate("/");
+    try {
+      if (tab === "login") {
+        const user = await login(email, password, role);
+        
+        if (user) {
+          toast.success(`${role.charAt(0).toUpperCase() + role.slice(1)} logged in successfully!`);
+          
+          // Redirect based on role
+          if (role === "admin") {
+            navigate("/dashboard");
+          } else if (role === "employee") {
+            navigate("/employee-dashboard");
+          } else if (role === "vendor") {
+            navigate("/vendor-dashboard");
+          } else {
+            navigate("/");
+          }
+        } else {
+          toast.error("Invalid credentials. Please try again.");
+        }
       } else {
-        toast.error("Invalid credentials");
+        // Handle registration
+        if (!name || !lastName || !email || !password) {
+          toast.error("Please fill in all fields");
+          setIsSubmitting(false);
+          return;
+        }
+        
+        const success = await register(name, lastName, email, password, role as "customer" | "vendor");
+        
+        if (success) {
+          toast.success("Registration successful! Please log in.");
+          setTab("login");
+        } else {
+          toast.error("Registration failed. Please try again.");
+        }
       }
-    } else {
-      // Registration - would connect to backend in real implementation
-      toast.success("Registration successful! Please log in.");
-      setTab("login");
+    } catch (error) {
+      console.error("Authentication error:", error);
+      toast.error("An error occurred during authentication. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
   
   return (
@@ -143,12 +153,22 @@ const Login = ({ defaultTab }: { defaultTab?: "login" | "register" } = {}) => {
                 <TabsContent value="register">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
+                      <Label htmlFor="firstName">First Name</Label>
                       <Input
-                        id="name"
-                        placeholder="Enter your full name"
+                        id="firstName"
+                        placeholder="Enter your first name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        placeholder="Enter your last name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                         required
                       />
                     </div>
