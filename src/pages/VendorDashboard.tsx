@@ -2,10 +2,7 @@
 import { useState } from "react";
 import {
   Package,
-  Store,
   TruckIcon,
-  ChevronDown,
-  Search,
   LogOut,
   Edit,
   Plus,
@@ -28,7 +25,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -38,9 +34,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { products } from "@/lib/data";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Vendor Dashboard Component
 const VendorDashboard = () => {
+  const [activeView, setActiveView] = useState("products");
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -52,23 +51,29 @@ const VendorDashboard = () => {
         
         <div className="flex flex-col flex-grow p-4">
           <div className="space-y-1">
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link to="/vendor-dashboard">
-                <Package className="h-5 w-5 mr-2" />
-                My Products
-              </Link>
+            <Button 
+              variant={activeView === "products" ? "default" : "ghost"} 
+              className="w-full justify-start" 
+              onClick={() => setActiveView("products")}
+            >
+              <Package className="h-5 w-5 mr-2" />
+              My Products
             </Button>
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link to="/vendor-dashboard/inventory">
-                <Warehouse className="h-5 w-5 mr-2" />
-                Warehouse Stock
-              </Link>
+            <Button 
+              variant={activeView === "inventory" ? "default" : "ghost"} 
+              className="w-full justify-start" 
+              onClick={() => setActiveView("inventory")}
+            >
+              <Warehouse className="h-5 w-5 mr-2" />
+              Warehouse Stock
             </Button>
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link to="/vendor-dashboard/shipments">
-                <TruckIcon className="h-5 w-5 mr-2" />
-                Shipments
-              </Link>
+            <Button 
+              variant={activeView === "shipments" ? "default" : "ghost"} 
+              className="w-full justify-start"
+              onClick={() => setActiveView("shipments")}
+            >
+              <TruckIcon className="h-5 w-5 mr-2" />
+              Shipments
             </Button>
           </div>
         </div>
@@ -103,17 +108,7 @@ const VendorDashboard = () => {
               <h1 className="text-xl font-bold text-primary">Vendor Dashboard</h1>
             </div>
             
-            <div className="hidden md:block">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search products..."
-                  className="w-[300px] pl-9"
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
@@ -141,131 +136,235 @@ const VendorDashboard = () => {
         {/* Main Dashboard Content */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">Warehouse Inventory</h1>
-                <p className="text-gray-600">
-                  Manage your product inventory across warehouses
-                </p>
-              </div>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Stock
-              </Button>
-            </div>
-            
-            <div className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Product Stock Status</CardTitle>
-                  <CardDescription>
-                    Current inventory levels for your products
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Product ID</TableHead>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Warehouse</TableHead>
-                        <TableHead>Current Stock</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {products.slice(0, 5).map((product) => (
-                        <TableRow key={product.id}>
-                          <TableCell className="font-medium">{product.id}</TableCell>
-                          <TableCell>{product.name}</TableCell>
-                          <TableCell>Warehouse 1</TableCell>
-                          <TableCell>{product.stock}</TableCell>
-                          <TableCell>
-                            <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                              product.stock > 20
-                                ? "bg-green-100 text-green-800"
-                                : product.stock > 0
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}>
-                              {product.stock > 20
-                                ? "In Stock"
-                                : product.stock > 0
-                                ? "Low Stock"
-                                : "Out of Stock"}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-3.5 w-3.5 mr-1" />
-                              Update
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+            <Tabs value={activeView} onValueChange={setActiveView}>
+              <TabsList className="mb-8">
+                <TabsTrigger value="products">My Products</TabsTrigger>
+                <TabsTrigger value="inventory">Warehouse Stock</TabsTrigger>
+                <TabsTrigger value="shipments">Shipments</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="products">
+                <div className="flex justify-between items-center mb-8">
+                  <div>
+                    <h1 className="text-3xl font-bold mb-2">My Products</h1>
+                    <p className="text-gray-600">
+                      Manage your product catalog
+                    </p>
+                  </div>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Product
+                  </Button>
+                </div>
+                
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Product Catalog</CardTitle>
+                      <CardDescription>
+                        All products you offer on the marketplace
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Product ID</TableHead>
+                            <TableHead>Product</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {products.slice(0, 5).map((product) => (
+                            <TableRow key={product.id}>
+                              <TableCell className="font-medium">{product.id}</TableCell>
+                              <TableCell>{product.name}</TableCell>
+                              <TableCell>{product.category}</TableCell>
+                              <TableCell>₹{product.price.toFixed(2)}</TableCell>
+                              <TableCell>
+                                <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                  product.stock > 0
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}>
+                                  {product.stock > 0
+                                    ? "Active"
+                                    : "Inactive"}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button variant="outline" size="sm">
+                                  <Edit className="h-3.5 w-3.5 mr-1" />
+                                  Update
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
               
-              <Card>
-                <CardHeader>
-                  <CardTitle>Warehouse Overview</CardTitle>
-                  <CardDescription>
-                    List of warehouses where your products are stored
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Warehouse ID</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Total Products</TableHead>
-                        <TableHead>Contact</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">W-001</TableCell>
-                        <TableCell>Mumbai, Maharashtra</TableCell>
-                        <TableCell>45</TableCell>
-                        <TableCell>+91 9876543210</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">W-002</TableCell>
-                        <TableCell>Delhi, NCR</TableCell>
-                        <TableCell>32</TableCell>
-                        <TableCell>+91 9876543211</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">W-003</TableCell>
-                        <TableCell>Bangalore, Karnataka</TableCell>
-                        <TableCell>27</TableCell>
-                        <TableCell>+91 9876543212</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+              <TabsContent value="inventory">
+                <div className="flex justify-between items-center mb-8">
+                  <div>
+                    <h1 className="text-3xl font-bold mb-2">Warehouse Inventory</h1>
+                    <p className="text-gray-600">
+                      Manage your product inventory across warehouses
+                    </p>
+                  </div>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Stock
+                  </Button>
+                </div>
+                
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Product Stock Status</CardTitle>
+                      <CardDescription>
+                        Current inventory levels for your products
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Product ID</TableHead>
+                            <TableHead>Product</TableHead>
+                            <TableHead>Warehouse</TableHead>
+                            <TableHead>Current Stock</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {products.slice(0, 5).map((product) => (
+                            <TableRow key={product.id}>
+                              <TableCell className="font-medium">{product.id}</TableCell>
+                              <TableCell>{product.name}</TableCell>
+                              <TableCell>Warehouse 1</TableCell>
+                              <TableCell>{product.stock}</TableCell>
+                              <TableCell>
+                                <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                                  product.stock > 20
+                                    ? "bg-green-100 text-green-800"
+                                    : product.stock > 0
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}>
+                                  {product.stock > 20
+                                    ? "In Stock"
+                                    : product.stock > 0
+                                    ? "Low Stock"
+                                    : "Out of Stock"}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button variant="outline" size="sm">
+                                  <Edit className="h-3.5 w-3.5 mr-1" />
+                                  Update
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="shipments">
+                <div className="mb-8">
+                  <h1 className="text-3xl font-bold mb-2">Shipments</h1>
+                  <p className="text-gray-600">
+                    Track and manage product shipments
+                  </p>
+                </div>
+                
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recent Shipments</CardTitle>
+                      <CardDescription>
+                        Status of your recent product shipments
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Shipment ID</TableHead>
+                            <TableHead>Order ID</TableHead>
+                            <TableHead>Products</TableHead>
+                            <TableHead>Destination</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="font-medium">SHP-001</TableCell>
+                            <TableCell>ORD-1234</TableCell>
+                            <TableCell>3 items</TableCell>
+                            <TableCell>Mumbai, Maharashtra</TableCell>
+                            <TableCell>
+                              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800">
+                                In Transit
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm">
+                                Track
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">SHP-002</TableCell>
+                            <TableCell>ORD-1235</TableCell>
+                            <TableCell>1 item</TableCell>
+                            <TableCell>Delhi, NCR</TableCell>
+                            <TableCell>
+                              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                Processing
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm">
+                                Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">SHP-003</TableCell>
+                            <TableCell>ORD-1236</TableCell>
+                            <TableCell>2 items</TableCell>
+                            <TableCell>Bangalore, Karnataka</TableCell>
+                            <TableCell>
+                              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
+                                Delivered
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm">
+                                Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>

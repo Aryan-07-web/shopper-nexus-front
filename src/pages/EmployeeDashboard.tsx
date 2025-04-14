@@ -3,11 +3,7 @@ import { useState } from "react";
 import {
   Users,
   MessageSquare,
-  Package,
-  ChevronDown,
-  Search,
   LogOut,
-  User
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,7 +22,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -35,10 +30,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users, orders } from "@/lib/data";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { users } from "@/lib/data";
 
 // Employee Dashboard Component
 const EmployeeDashboard = () => {
+  const [activeView, setActiveView] = useState("customers");
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -50,17 +48,21 @@ const EmployeeDashboard = () => {
         
         <div className="flex flex-col flex-grow p-4">
           <div className="space-y-1">
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link to="/employee-dashboard">
-                <Users className="h-5 w-5 mr-2" />
-                Customers
-              </Link>
+            <Button 
+              variant={activeView === "customers" ? "default" : "ghost"} 
+              className="w-full justify-start" 
+              onClick={() => setActiveView("customers")}
+            >
+              <Users className="h-5 w-5 mr-2" />
+              Customers
             </Button>
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link to="/employee-dashboard/complaints">
-                <MessageSquare className="h-5 w-5 mr-2" />
-                Complaints
-              </Link>
+            <Button 
+              variant={activeView === "complaints" ? "default" : "ghost"} 
+              className="w-full justify-start"
+              onClick={() => setActiveView("complaints")}
+            >
+              <MessageSquare className="h-5 w-5 mr-2" />
+              Complaints
             </Button>
           </div>
         </div>
@@ -95,17 +97,7 @@ const EmployeeDashboard = () => {
               <h1 className="text-xl font-bold text-primary">Employee Dashboard</h1>
             </div>
             
-            <div className="hidden md:block">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search customers..."
-                  className="w-[300px] pl-9"
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 ml-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
@@ -133,129 +125,149 @@ const EmployeeDashboard = () => {
         {/* Main Dashboard Content */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-7xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2">Customer Management</h1>
-              <p className="text-gray-600">
-                View and manage customer information and requests
-              </p>
-            </div>
-            
-            <div className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Customers</CardTitle>
-                  <CardDescription>
-                    List of all registered customers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {users.filter(u => u.role === "customer").map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">{user.id}</TableCell>
-                          <TableCell>{user.name}</TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>{user.city || "Not specified"}</TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <ChevronDown className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                <DropdownMenuItem>View Orders</DropdownMenuItem>
-                                <DropdownMenuItem>Contact Customer</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+            <Tabs value={activeView} onValueChange={setActiveView}>
+              <TabsList className="mb-8">
+                <TabsTrigger value="customers">Customers</TabsTrigger>
+                <TabsTrigger value="complaints">Complaints</TabsTrigger>
+              </TabsList>
               
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Customer Requests</CardTitle>
-                  <CardDescription>
-                    Customer support requests that need attention
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Request ID</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">REQ-001</TableCell>
-                        <TableCell>John Doe</TableCell>
-                        <TableCell>Return Request</TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
-                            Pending
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            Process
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">REQ-002</TableCell>
-                        <TableCell>Sarah Smith</TableCell>
-                        <TableCell>Order Change</TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
-                            Pending
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            Process
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">REQ-003</TableCell>
-                        <TableCell>Michael Brown</TableCell>
-                        <TableCell>Order Status</TableCell>
-                        <TableCell>
-                          <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
-                            Resolved
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm">
-                            View Details
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
+              <TabsContent value="customers">
+                <div className="mb-8">
+                  <h1 className="text-3xl font-bold mb-2">Customer Management</h1>
+                  <p className="text-gray-600">
+                    View and manage customer information and requests
+                  </p>
+                </div>
+                
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Customers</CardTitle>
+                      <CardDescription>
+                        List of all registered customers
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {users.filter(u => u.role === "customer").map((user) => (
+                            <TableRow key={user.id}>
+                              <TableCell className="font-medium">{user.id}</TableCell>
+                              <TableCell>{user.name}</TableCell>
+                              <TableCell>{user.email}</TableCell>
+                              <TableCell>{user.city || "Not specified"}</TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      Actions
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                                    <DropdownMenuItem>View Orders</DropdownMenuItem>
+                                    <DropdownMenuItem>Contact Customer</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="complaints">
+                <div className="mb-8">
+                  <h1 className="text-3xl font-bold mb-2">Customer Complaints</h1>
+                  <p className="text-gray-600">
+                    Manage and respond to customer complaints
+                  </p>
+                </div>
+                
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Customer Complaints</CardTitle>
+                      <CardDescription>
+                        Customer complaints that need attention
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Complaint ID</TableHead>
+                            <TableHead>Customer</TableHead>
+                            <TableHead>Issue</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell className="font-medium">CMP-001</TableCell>
+                            <TableCell>John Doe</TableCell>
+                            <TableCell>Product Damaged During Shipping</TableCell>
+                            <TableCell>
+                              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                Pending
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm">
+                                Process
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">CMP-002</TableCell>
+                            <TableCell>Sarah Smith</TableCell>
+                            <TableCell>Wrong Item Received</TableCell>
+                            <TableCell>
+                              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                In Progress
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm">
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className="font-medium">CMP-003</TableCell>
+                            <TableCell>Michael Brown</TableCell>
+                            <TableCell>Refund Request</TableCell>
+                            <TableCell>
+                              <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-800">
+                                Resolved
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="sm">
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
