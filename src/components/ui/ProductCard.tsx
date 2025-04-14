@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
 import { formatPrice } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Product } from "@/types/models";
+import { Product as ProductType } from "@/types/models";
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductType;
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
@@ -14,20 +14,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
     ? product.price - (product.price * product.discount_percentage / 100)
     : product.price;
   
-  // Split the photos string into an array if it exists
-  // console.log(product.images);
-  // const photos = product.images ? product.images.split(',') : [];
-  // // const photos = Array.isArray(product.photos) && product.photos.length > 0 ? product.photos : [];
-  // console.log(photos);
-  // const mainPhoto = photos.length > 0 ? photos[0] : '/placeholder.svg';
+  // Use images array if it exists, otherwise default to empty array
+  const photos = product.photos ? product.photos.split(',') : [];
+  const mainPhoto = photos.length > 0 ? photos[0] : '/placeholder.svg';
 
-  const photos = product.images || [];
-  const mainPhoto = photos[0] || '/placeholder.svg';
-
-  
   return (
     <div className="bg-white rounded-lg border overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <Link to={`/product/${product.id}`}>
+      <Link to={`/product/${product.product_id}`}>
         <div className="relative aspect-square overflow-hidden">
           <img 
             src={mainPhoto} 
@@ -42,9 +35,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
       </Link>
       <div className="p-4">
-        <Link to={`/product/${product.id}`} className="block">
+        <Link to={`/product/${product.product_id}`} className="block">
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-1">
-            {product.details?.substring(0, 60) || `Product #${product.id}`}
+            {product.details?.substring(0, 60) || `Product #${product.product_id}`}
           </h3>
         </Link>
         <div className="flex items-center mb-2">

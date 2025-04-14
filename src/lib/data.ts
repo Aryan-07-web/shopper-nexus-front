@@ -1,3 +1,4 @@
+import { Product as ProductModel } from "@/types/models";
 
 export type Product = {
   id: string;
@@ -11,6 +12,7 @@ export type Product = {
   description: string;
   features?: string[];
   images: string[];
+  product_id: number; // Added property to match the model
 };
 
 export type User = {
@@ -74,7 +76,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHNtYXJ0cGhvbmV8ZW58MHx8MHx8fDA%3D",
       "https://images.unsplash.com/photo-1598327105854-0e05b0ccb219?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzJ8fHNtYXJ0cGhvbmV8ZW58MHx8MHx8fDA%3D"
-    ]
+    ],
+    product_id: 1
   },
   {
     id: "prod-2",
@@ -96,7 +99,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8c21hcnQlMjB0dnxlbnwwfHwwfHx8MA%3D%3D",
       "https://images.unsplash.com/photo-1601944179066-29786cb9d32a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c21hcnQlMjB0dnxlbnwwfHwwfHx8MA%3D%3D"
-    ]
+    ],
+    product_id: 2
   },
   {
     id: "prod-3",
@@ -118,7 +122,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wfGVufDB8fDB8fHww",
       "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bGFwdG9wJTIwb24lMjBkZXNrfGVufDB8fDB8fHww"
-    ]
+    ],
+    product_id: 3
   },
   {
     id: "prod-4",
@@ -140,7 +145,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dCUyMHNoaXJ0fGVufDB8fDB8fHww",
       "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8dCUyMHNoaXJ0fGVufDB8fDB8fHww"
-    ]
+    ],
+    product_id: 4
   },
   {
     id: "prod-5",
@@ -162,7 +168,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1551854838-212c9a5fde3b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8amVhbnN8ZW58MHx8MHx8fDA%3D",
       "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8amVhbnN8ZW58MHx8MHx8fDA%3D"
-    ]
+    ],
+    product_id: 5
   },
   {
     id: "prod-6",
@@ -184,7 +191,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1548883354-94bcfe321cbb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2ludGVyJTIwamFja2V0fGVufDB8fDB8fHww",
       "https://images.unsplash.com/photo-1611080541496-53fc707cab1c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8d2ludGVyJTIwamFja2V0fGVufDB8fDB8fHww"
-    ]
+    ],
+    product_id: 6
   },
   {
     id: "prod-7",
@@ -206,7 +214,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFuYW5hc3xlbnwwfHwwfHx8MA%3D%3D",
       "https://images.unsplash.com/photo-1603833797131-3c0a18fcb6b1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YmFuYW5hc3xlbnwwfHwwfHx8MA%3D%3D"
-    ]
+    ],
+    product_id: 7
   },
   {
     id: "prod-8",
@@ -228,7 +237,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1559525850-c71f69f8bcf0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y29mZmVlJTIwYmVhbnN8ZW58MHx8MHx8fDA%3D",
       "https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGNvZmZlZSUyMGJlYW5zfGVufDB8fDB8fHww"
-    ]
+    ],
+    product_id: 8
   },
   {
     id: "prod-9",
@@ -250,7 +260,8 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1543168256-418811576931?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8b3JnYW5pYyUyMHZlZ2V0YWJsZXN8ZW58MHx8MHx8fDA%3D",
       "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fG9yZ2FuaWMlMjB2ZWdldGFibGVzfGVufDB8fDB8fHww"
-    ]
+    ],
+    product_id: 9
   }
 ];
 
@@ -311,7 +322,11 @@ export const orders: Order[] = [
   }
 ];
 
-// Helper functions for filtering and sorting products
+// Helper functions adapted to work with both Product types
+export const formatPrice = (price: number): string => {
+  return `₹${price.toFixed(2)}`;
+};
+
 export const getProductById = (id: string): Product | undefined => {
   return products.find(product => product.id === id);
 };
@@ -325,10 +340,6 @@ export const getDiscountedPrice = (product: Product): number => {
   
   const discountAmount = product.price * (product.discountPercentage / 100);
   return Number((product.price - discountAmount).toFixed(2));
-};
-
-export const formatPrice = (price: number): string => {
-  return `₹${price.toFixed(2)}`;
 };
 
 export const getOrdersByUserId = (userId: string): Order[] => {
@@ -347,4 +358,36 @@ export const getNewArrivals = (): Product[] => {
 export const getBestSellers = (): Product[] => {
   // In a real app, this would be ordered by sales volume
   return [...products].sort((a, b) => b.rating - a.rating).slice(0, 4);
+};
+
+// Function to convert the Product type to ProductModel type for backend compatibility
+export const convertToProductModel = (product: Product): ProductModel => {
+  return {
+    product_id: product.product_id,
+    price: product.price,
+    details: product.description,
+    photos: product.images.join(','),
+    category: product.category,
+    ratings: product.rating,
+    discount_percentage: product.discountPercentage,
+    // Default values for other required fields
+    gst: 0
+  };
+};
+
+// Function to convert ProductModel to Product for frontend display
+export const convertToFrontendProduct = (productModel: ProductModel): Product => {
+  return {
+    id: productModel.product_id.toString(),
+    product_id: productModel.product_id,
+    name: productModel.details?.substring(0, 30) || `Product #${productModel.product_id}`,
+    category: (productModel.category || "electronics") as "electronics" | "clothing" | "groceries",
+    price: productModel.price,
+    discountPercentage: productModel.discount_percentage,
+    rating: productModel.ratings || 0,
+    stock: 0, // Default value
+    brand: "",  // Default value
+    description: productModel.details || "",
+    images: productModel.photos ? productModel.photos.split(',') : []
+  };
 };

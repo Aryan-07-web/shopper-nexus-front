@@ -163,7 +163,7 @@ const EmployeeDashboard = () => {
                               <TableCell className="font-medium">{user.id}</TableCell>
                               <TableCell>{user.name}</TableCell>
                               <TableCell>{user.email}</TableCell>
-                              {/* <TableCell>{user.city || "Not specified"}</TableCell> */}
+                              <TableCell>Not specified</TableCell>
                               <TableCell>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>

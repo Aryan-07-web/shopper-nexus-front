@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Product } from "@/lib/data";
+import { Product } from "@/types/models";
 import ProductCard from "./ProductCard";
 
 interface ProductCarouselProps {
@@ -57,7 +57,7 @@ const ProductCarousel = ({ title, products }: ProductCarouselProps) => {
       >
         {products.map((product) => (
           <div 
-            key={product.id} 
+            key={product.product_id} 
             className="min-w-[240px] md:min-w-[280px]"
           >
             <ProductCard product={product} />
