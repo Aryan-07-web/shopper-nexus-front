@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Users,
@@ -263,7 +262,7 @@ const CustomersTable = () => {
                       ? "bg-purple-100 text-purple-800"
                       : user.role === "employee"
                       ? "bg-blue-100 text-blue-800"
-                      : user.role === "vendor"
+                      : user.role === "vendor" 
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-green-100 text-green-800"
                   }`}>
@@ -371,7 +370,7 @@ const Dashboard = () => {
       {/* Sidebar */}
       <div className="hidden md:flex w-64 flex-col bg-white border-r">
         <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold text-primary">ShopperNexus</h1>
+          <h1 className="text-2xl font-bold text-primary">E-Commerce</h1>
           <p className="text-sm text-gray-600">Admin Dashboard</p>
         </div>
         
@@ -431,9 +430,9 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500">admin@example.com</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon">
+            {/* <Button variant="ghost" size="icon">
               <LogOut className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
@@ -451,10 +450,10 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-4 ml-auto">
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <User className="h-4 w-4 mr-1" />
                 Switch Role
-              </Button>
+              </Button> */}
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -467,12 +466,12 @@ const Dashboard = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  {/* <DropdownMenuItem>Profile</DropdownMenuItem> */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Link to="/" className="flex w-full">Back to Store</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+                  {/* <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
