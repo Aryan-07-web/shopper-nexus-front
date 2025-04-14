@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Users,
@@ -42,7 +41,7 @@ const EmployeeDashboard = () => {
       {/* Sidebar */}
       <div className="hidden md:flex w-64 flex-col bg-white border-r">
         <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold text-primary">ShopperNexus</h1>
+          <h1 className="text-2xl font-bold text-primary">E-Commerce</h1>
           <p className="text-sm text-gray-600">Employee Dashboard</p>
         </div>
         
@@ -78,9 +77,9 @@ const EmployeeDashboard = () => {
                 <p className="text-xs text-gray-500">employee@example.com</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon">
+            {/* <Button variant="ghost" size="icon">
               <LogOut className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
@@ -109,13 +108,13 @@ const EmployeeDashboard = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  {/* <DropdownMenuItem>Profile</DropdownMenuItem> */}
+                  {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Link to="/" className="flex w-full">Back to Store</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem>
+                  {/* <DropdownMenuItem className="text-red-600">Logout</DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -164,7 +163,7 @@ const EmployeeDashboard = () => {
                               <TableCell className="font-medium">{user.id}</TableCell>
                               <TableCell>{user.name}</TableCell>
                               <TableCell>{user.email}</TableCell>
-                              <TableCell>{user.city || "Not specified"}</TableCell>
+                              {/* <TableCell>{user.city || "Not specified"}</TableCell> */}
                               <TableCell>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
